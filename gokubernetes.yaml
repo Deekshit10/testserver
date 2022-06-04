@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gotestprogram
+spec:
+  selector:
+    matchLabels:
+      app: gotestprogram
+  template:
+    metadata:
+      labels:
+        app: gotestprogram
+    spec: 
+      containers:
+       - name: gotestprogram
+         image: deekshitg101/simpleserver:latest
+         envFrom:
+          - configMapRef:
+              name: testserver-config-file
+         ports:
+          - containerPort: 8080
+         volumeMounts:
+          - name: testserver-config
+            mountPath: /testserver/config
+      volumes:
+       - name: testserver-config
+         configMap:
+           name: testserver-config-file
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gotestprogram
+spec:
+  selector:
+    app: gotestprogram
+  type: NodePort 
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 9010
+      nodePort: 32100
